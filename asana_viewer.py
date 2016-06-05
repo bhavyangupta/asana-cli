@@ -68,6 +68,7 @@ header_str = "Description | Status | Tags | Assigned To"
 separator = "----------------------------------------"
 print header_str
 print separator
+count = 1
 for t in tasklist:
     if not t['completed']:
         assignee = 'None'
@@ -77,9 +78,14 @@ for t in tasklist:
         names = textwrap.wrap(t['name'],40)
         name = [name.ljust(40) for name in names] 
         name = "\n".join(name)
-        completed = str(t['completed']).ljust(6)
-        tags = str(t['tags']).ljust(10)
-        entry =  "%s | %s | %s | %s" % (name, completed, tags, assignee) 
-        print entry
-        print "-------------------------------------------------------------"
-
+        if names[-1][-1] == ':':
+            print '\033[94m' + name
+            print '-----------------------------------------------'
+            continue
+        tags = t['tags']
+        temp = asana.resources.tags.Tags(client)
+        tags = [temp.find_by_id(tag['id']) for tag in tags]
+        tags = [tag['name'] for tag in tags]
+        tags = ",".join(tags)
+        entry =  "\033[32m %s | %s | %s" % (name, tags, assignee) 
+        print "\033[31m ->" + entry
